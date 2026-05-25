@@ -45,11 +45,6 @@ export const transactionAPI = {
   getAccountTransactions: (accountId, params) => api.get(`/api/transactions/account/${accountId}`, { params }),
 };
 
-export const aiAPI = {
-  chat:       (message) => api.post('/api/ai/chat', { message }),
-  getHistory: ()        => api.get('/api/ai/history'),
-  clearChat:  ()        => api.delete('/api/ai/chat'),
-};
+
 
 export default api;
-

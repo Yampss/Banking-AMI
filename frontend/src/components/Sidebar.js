@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
-  { id: 'dashboard',    label: 'Dashboard',    path: '/dashboard',    icon: '⊞' },
+  { id: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: '⊞' },
   { id: 'transactions', label: 'Transactions', path: '/transactions', icon: '↔' },
 ];
 
@@ -18,41 +18,24 @@ const Sidebar = ({ active }) => {
 
   return (
     <div style={styles.sidebar}>
-      {/* Brand */}
       <div style={styles.brand}>
-        <div style={styles.brandIconWrap}>
-          <span style={styles.brandIconGlyph}>⬡</span>
-        </div>
-        <div>
-          <div style={styles.brandName}>NexaBank</div>
-          <div style={styles.brandSub}>Personal Banking</div>
-        </div>
+        <div style={styles.brandIcon}>⬡</div>
+        <div style={styles.brandText}>NexaBank</div>
       </div>
 
-      {/* Divider */}
-      <div style={styles.divider} />
-
-      {/* Nav */}
       <nav style={styles.nav}>
-        <div style={styles.navLabel}>MAIN MENU</div>
         {navItems.map((item) => (
-          <NavLink
-            key={item.id}
-            to={item.path}
-            style={({ isActive }) => ({
-              ...styles.navItem,
-              ...(isActive ? styles.navItemActive : {}),
-            })}
-          >
+          <NavLink key={item.id} to={item.path} style={({ isActive }) => ({
+            ...styles.navItem,
+            ...(isActive ? styles.navItemActive : {}),
+          })}>
             <span style={styles.navIcon}>{item.icon}</span>
             <span>{item.label}</span>
           </NavLink>
         ))}
       </nav>
 
-      {/* Bottom user section */}
       <div style={styles.bottom}>
-        <div style={styles.divider} />
         <div style={styles.userCard}>
           <div style={styles.avatar}>
             {user?.first_name?.[0]}{user?.last_name?.[0]}
@@ -72,9 +55,9 @@ const Sidebar = ({ active }) => {
 
 const styles = {
   sidebar: {
-    width: '256px',
-    background: '#FFFFFF',
-    borderRight: '1px solid #DDE3ED',
+    width: '260px',
+    background: 'var(--bg-secondary)',
+    borderRight: '1px solid var(--border-color)',
     display: 'flex',
     flexDirection: 'column',
     padding: '24px 16px',
@@ -82,96 +65,62 @@ const styles = {
     top: 0,
     height: '100vh',
     flexShrink: 0,
-    boxShadow: '2px 0 12px rgba(0,0,0,0.04)',
   },
   brand: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    marginBottom: '20px',
-    paddingLeft: '6px',
+    gap: '10px',
+    marginBottom: '36px',
+    paddingLeft: '8px',
   },
-  brandIconWrap: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '10px',
-    background: 'linear-gradient(135deg, #003087 0%, #001F5A 100%)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 4px 12px rgba(0,48,135,0.3)',
-    flexShrink: 0,
+  brandIcon: {
+    fontSize: '28px',
+    background: 'var(--gradient-primary)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
   },
-  brandIconGlyph: {
+  brandText: {
     fontSize: '20px',
-    color: '#FFFFFF',
-    lineHeight: 1,
-  },
-  brandName: {
-    fontSize: '17px',
     fontWeight: '800',
-    color: '#003087',
-    letterSpacing: '-0.3px',
-    lineHeight: 1.2,
-  },
-  brandSub: {
-    fontSize: '10px',
-    fontWeight: '600',
-    color: '#8A99B0',
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
-    marginTop: '1px',
-  },
-  divider: {
-    height: '1px',
-    background: '#EEF2F7',
-    margin: '4px 0',
+    background: 'var(--gradient-primary)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
   },
   nav: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '2px',
+    gap: '4px',
     flex: 1,
-    marginTop: '16px',
-  },
-  navLabel: {
-    fontSize: '10px',
-    fontWeight: '700',
-    color: '#8A99B0',
-    letterSpacing: '0.10em',
-    padding: '0 10px',
-    marginBottom: '8px',
   },
   navItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
-    padding: '10px 12px',
-    borderRadius: '8px',
+    gap: '12px',
+    padding: '12px 14px',
+    borderRadius: '12px',
     fontSize: '14px',
     fontWeight: '500',
-    color: '#4A5568',
-    transition: 'all 0.18s ease',
+    color: 'var(--text-secondary)',
+    transition: 'all 0.2s',
     textDecoration: 'none',
-    position: 'relative',
   },
   navItemActive: {
-    background: 'linear-gradient(135deg, #EBF0FA 0%, #DCE8FF 100%)',
-    color: '#003087',
-    fontWeight: '700',
-    borderLeft: '3px solid #003087',
-    paddingLeft: '9px',
+    background: 'rgba(99,102,241,0.15)',
+    color: 'var(--accent-primary)',
+    fontWeight: '600',
+    boxShadow: 'inset 0 0 0 1px rgba(99,102,241,0.2)',
   },
   navIcon: {
-    fontSize: '17px',
-    width: '22px',
+    fontSize: '18px',
+    width: '24px',
     textAlign: 'center',
-    flexShrink: 0,
   },
   bottom: {
+    borderTop: '1px solid var(--border-color)',
+    paddingTop: '16px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: '12px',
   },
   userCard: {
     display: 'flex',
@@ -179,56 +128,38 @@ const styles = {
     gap: '10px',
     padding: '10px',
     borderRadius: '10px',
-    background: '#F0F4F8',
-    border: '1px solid #DDE3ED',
-    marginTop: '8px',
+    background: 'rgba(255,255,255,0.03)',
   },
   avatar: {
     width: '36px',
     height: '36px',
-    borderRadius: '8px',
-    background: 'linear-gradient(135deg, #003087 0%, #001F5A 100%)',
+    borderRadius: '10px',
+    background: 'var(--gradient-primary)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '12px',
-    fontWeight: '800',
-    color: '#FFFFFF',
-    flexShrink: 0,
-    letterSpacing: '0.5px',
-  },
-  userInfo: { flex: 1, overflow: 'hidden' },
-  userName: {
     fontSize: '13px',
     fontWeight: '700',
-    color: '#0D1B2E',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    color: 'white',
+    flexShrink: 0,
   },
-  userEmail: {
-    fontSize: '11px',
-    color: '#8A99B0',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    marginTop: '1px',
-  },
+  userInfo: { flex: 1, overflow: 'hidden' },
+  userName: { fontSize: '13px', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  userEmail: { fontSize: '11px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   logoutBtn: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    background: '#FEF2F2',
-    border: '1.5px solid #FECACA',
-    color: '#DC2626',
-    borderRadius: '8px',
-    padding: '9px 14px',
+    background: 'rgba(239,68,68,0.06)',
+    border: '1px solid rgba(239,68,68,0.15)',
+    color: 'var(--accent-red)',
+    borderRadius: '10px',
+    padding: '10px 14px',
     fontSize: '13px',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.18s ease',
+    transition: 'all 0.2s',
     width: '100%',
-    justifyContent: 'center',
   },
 };
 

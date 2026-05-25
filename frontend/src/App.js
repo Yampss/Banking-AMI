@@ -5,18 +5,15 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import TransactionsPage from './pages/TransactionsPage';
-import ChatAssistant from './components/ChatAssistant';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-      <div className="spinner spinner-navy" style={{ width: 40, height: 40, borderWidth: 3 }} />
+      <div className="spinner" style={{ width: 40, height: 40, borderWidth: 3 }} />
     </div>
   );
-  // ChatAssistant is rendered here so it appears on ALL authenticated pages
-  // and is automatically removed when the user logs out
-  return user ? <>{children}<ChatAssistant /></> : <Navigate to="/login" replace />;
+  return user ? children : <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }) => {
