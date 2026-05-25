@@ -2,6 +2,8 @@
 Description=NexaBank User Service
 After=network-online.target
 Wants=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=3
 
 [Service]
 Type=simple
@@ -9,27 +11,20 @@ User=nexabank
 Group=nexabank
 WorkingDirectory=/opt/nexabank/user-service
 
-# Run bootstrap first — fetches secrets and writes the env file
-ExecStartPre=/bin/bash /opt/nexabank/user-service/bootstrap.sh
+# The + prefix means: run this as root (needed to write /etc/nexabank/*.env)
+# even though the main process runs as nexabank
+ExecStartPre=+/bin/bash /opt/nexabank/user-service/bootstrap.sh
 
-# Load the env file written by bootstrap
 EnvironmentFile=/etc/nexabank/user-service.env
-
-# Start the Node.js service
 ExecStart=/usr/bin/node src/index.js
 
-# Restart on failure, but not too aggressively
 Restart=on-failure
 RestartSec=10
-StartLimitIntervalSec=120
-StartLimitBurst=3
 
-# Logging
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=nexabank-user-service
 
-# Security hardening
 PrivateTmp=true
 NoNewPrivileges=true
 ProtectSystem=strict

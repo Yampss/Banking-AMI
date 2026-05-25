@@ -38,6 +38,8 @@ echo "[5/8] Creating user and directories..."
 useradd -r -s /usr/sbin/nologin nexabank 2>/dev/null || true
 mkdir -p "${INSTALL_DIR}" /etc/nexabank
 chown nexabank:nexabank "${INSTALL_DIR}"
+chown nexabank:nexabank /etc/nexabank
+chmod 750 /etc/nexabank
 
 echo "[6/8] Cloning repository..."
 rm -rf /tmp/nexabank-repo
@@ -62,10 +64,10 @@ systemctl enable "nexabank-${SERVICE}"
 echo "Running bootstrap..."
 bash "${INSTALL_DIR}/bootstrap.sh"
 
-echo "Starting service..."
-systemctl start "nexabank-${SERVICE}"
-sleep 3
-systemctl status "nexabank-${SERVICE}" --no-pager
+echo "Starting service (may fail if RDS not reachable from this VPC - OK for AMI creation)..."
+systemctl start "nexabank-${SERVICE}" || echo "[NOTE] Service start failed - expected if not in nexabank-vpc. AMI creation is still fine."
+sleep 2
+systemctl status "nexabank-${SERVICE}" --no-pager || true
 
 echo ""
 echo "========================================"

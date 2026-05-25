@@ -2,19 +2,19 @@
 Description=NexaBank AI Service
 After=network-online.target
 Wants=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=3
 
 [Service]
 Type=simple
 User=nexabank
 Group=nexabank
 WorkingDirectory=/opt/nexabank/ai-service
-ExecStartPre=/bin/bash /opt/nexabank/ai-service/bootstrap.sh
+ExecStartPre=+/bin/bash /opt/nexabank/ai-service/bootstrap.sh
 EnvironmentFile=/etc/nexabank/ai-service.env
 ExecStart=/usr/bin/node src/index.js
 Restart=on-failure
 RestartSec=10
-StartLimitIntervalSec=120
-StartLimitBurst=3
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=nexabank-ai-service

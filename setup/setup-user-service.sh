@@ -42,7 +42,7 @@ echo "AWS CLI: $(aws --version)"
 # ── 4. CloudWatch Agent ─────────────────────────────────────
 echo "[4/8] Installing CloudWatch Agent..."
 wget -q https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb -O /tmp/cwa.deb
-dpkg -i /tmp/amazon-cloudwatch-agent.deb || apt-get -f install -y
+dpkg -i /tmp/cwa.deb || apt-get -f install -y
 rm -f /tmp/cwa.deb
 
 # ── 5. Create service user & directories ────────────────────
@@ -50,6 +50,9 @@ echo "[5/8] Creating nexabank user and directories..."
 useradd -r -s /usr/sbin/nologin nexabank 2>/dev/null || true
 mkdir -p "${INSTALL_DIR}" /etc/nexabank
 chown nexabank:nexabank "${INSTALL_DIR}"
+# /etc/nexabank must be owned by nexabank so bootstrap.sh (run as nexabank via systemd) can write the env file
+chown nexabank:nexabank /etc/nexabank
+chmod 750 /etc/nexabank
 
 # ── 6. Clone repo and copy service files ────────────────────
 echo "[6/8] Cloning repository..."
@@ -83,10 +86,10 @@ echo "Running bootstrap (fetching secrets from AWS Secrets Manager)..."
 bash "${INSTALL_DIR}/bootstrap.sh"
 
 # ── Start service ────────────────────────────────────────────
-echo "Starting service..."
-systemctl start "nexabank-${SERVICE}"
-sleep 3
-systemctl status "nexabank-${SERVICE}" --no-pager
+echo "Starting service (may fail if RDS not reachable from this VPC - OK for AMI creation)..."
+systemctl start "nexabank-${SERVICE}" || echo "[NOTE] Service start failed - expected if not in nexabank-vpc. AMI creation is still fine."
+sleep 2
+systemctl status "nexabank-${SERVICE}" --no-pager || true
 
 echo ""
 echo "========================================"
