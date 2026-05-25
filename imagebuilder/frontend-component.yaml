@@ -1,0 +1,124 @@
+name: NexaBankFrontend
+description: >
+  Builds NexaBank Frontend AMI.
+  Installs nginx, downloads the React source from S3,
+  runs npm install + npm run build, places the output in /usr/share/nginx/html/,
+  and enables nginx to serve the SPA on port 80.
+schemaVersion: 1.0
+
+parameters:
+  - BuildBucket:
+      type: string
+      description: S3 bucket where the frontend source tarball is stored
+      default: nexabank-ami-builds-482112969602
+
+phases:
+  - name: build
+    steps:
+      - name: InstallNginx
+        action: ExecuteBash
+        inputs:
+          commands:
+            - dnf install -y nginx
+            - systemctl enable nginx
+
+      - name: InstallNodejsForBuild
+        action: ExecuteBash
+        inputs:
+          commands:
+            - dnf install -y curl
+            - curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
+            - dnf install -y nodejs
+            - node --version
+            - npm --version
+
+      - name: InstallCloudWatchAgent
+        action: ExecuteBash
+        inputs:
+          commands:
+            - dnf install -y amazon-cloudwatch-agent
+            - systemctl enable amazon-cloudwatch-agent
+
+      - name: DownloadFrontendSource
+        action: S3Download
+        inputs:
+          - source: s3://{{ BuildBucket }}/frontend-latest.tar.gz
+            destination: /tmp/frontend-latest.tar.gz
+
+      - name: ExtractSource
+        action: ExecuteBash
+        inputs:
+          commands:
+            - mkdir -p /opt/nexabank/frontend
+            - tar -xzf /tmp/frontend-latest.tar.gz -C /opt/nexabank/frontend
+
+      - name: BuildReactApp
+        action: ExecuteBash
+        inputs:
+          commands:
+            - cd /opt/nexabank/frontend
+            - npm install --no-audit
+            - NODE_ENV=production npm run build
+            - echo "React build complete. Files:"
+            - ls -la build/
+
+      - name: DeployBuildToNginx
+        action: ExecuteBash
+        inputs:
+          commands:
+            # Clear default nginx html
+            - rm -rf /usr/share/nginx/html/*
+            # Copy the React build output
+            - cp -r /opt/nexabank/frontend/build/* /usr/share/nginx/html/
+            - echo "Files deployed to nginx html root:"
+            - ls /usr/share/nginx/html/
+
+      - name: InstallBootstrapAndService
+        action: ExecuteBash
+        inputs:
+          commands:
+            - chmod +x /opt/nexabank/frontend/bootstrap.sh
+            - cp /opt/nexabank/frontend/nexabank-frontend.service /etc/systemd/system/
+            # Disable default nginx so our service unit manages it
+            - systemctl disable nginx || true
+            - systemctl daemon-reload
+            - systemctl enable nexabank-frontend
+
+      - name: ConfigureCloudWatchAgent
+        action: ExecuteBash
+        inputs:
+          commands:
+            - cp /opt/nexabank/frontend/cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+            - systemctl enable amazon-cloudwatch-agent
+
+      - name: Cleanup
+        action: ExecuteBash
+        inputs:
+          commands:
+            - rm -f /tmp/frontend-latest.tar.gz
+            # Remove node_modules from the instance — they're only needed at build time
+            - rm -rf /opt/nexabank/frontend/node_modules
+            - dnf clean all
+
+  - name: validate
+    steps:
+      - name: VerifyNginxInstalled
+        action: ExecuteBash
+        inputs:
+          commands:
+            - nginx -v
+            - test -f /usr/share/nginx/html/index.html
+            - echo "index.html found — React build is in place"
+
+      - name: VerifyServiceEnabled
+        action: ExecuteBash
+        inputs:
+          commands:
+            - systemctl is-enabled nexabank-frontend
+
+      - name: VerifyBootstrapExists
+        action: ExecuteBash
+        inputs:
+          commands:
+            - test -x /opt/nexabank/frontend/bootstrap.sh
+            - test -f /opt/nexabank/frontend/nginx.conf

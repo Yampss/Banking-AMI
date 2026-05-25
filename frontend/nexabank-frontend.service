@@ -1,0 +1,18 @@
+[Unit]
+Description=NexaBank Frontend (nginx)
+After=network.target
+
+[Service]
+Type=forking
+# Bootstrap: place nginx config, verify build files
+ExecStartPre=/bin/bash /opt/nexabank/frontend/bootstrap.sh
+# Start nginx (PID file managed by nginx itself)
+ExecStart=/usr/sbin/nginx
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
