@@ -52,6 +52,9 @@ The platform runs across **4 EC2 instances** (one per service), all behind a **s
 
 ## 2. Architecture Diagram
 ![Architecture](setup/Picture1.png)
+
+## Add-ons
+![Add-ons](setup/image.png)
 ---
 
 ## 3. AWS Services Used
